@@ -23,7 +23,7 @@ namespace FollowFixedPoint.Scripts
         }
 
         // #region PLAYER_MOVEMENT
-        public void OnMove(InputValue inputValue)
+        void OnMove(InputValue inputValue)
         {
             moveDirection = inputValue.Get<Vector2>();
         }
