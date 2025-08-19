@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 namespace Jump.Scripts
 {
-    public class Player : MonoBehaviour
+    public class PlayerWithRigidBody : MonoBehaviour
     {
         [SerializeField] float moveSpeed = 5f;
         private Vector2 playerMoveDirection = Vector2.zero;
@@ -28,17 +28,15 @@ namespace Jump.Scripts
         void OnJump(InputValue inputValue)
         {
             JumpWithRigidBody();
-            // JumpWithVector2();
         }
 
-        #region Jump With RigidBody
         private void JumpWithRigidBody()
         {
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
             if (rb != null)
             {
                 // jumpForce based on specific jumpHeight:
-                float jumpHeight = 3f;
+                float jumpHeight = 1f;
                 float gravity = Physics2D.gravity.y * rb.gravityScale;
                 float jumpForce = Mathf.Sqrt(jumpHeight * gravity * -2) * rb.mass;
 
@@ -52,7 +50,7 @@ namespace Jump.Scripts
         private void ControlRigidBodyYVelocity()
         {
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
-            
+
             // Change upwards and downwards movement velocity based direction:
             if (rb.linearVelocityY > 0)
             {
@@ -60,14 +58,9 @@ namespace Jump.Scripts
             }
             else
             {
-                rb.gravityScale = 3f; // Increased gravity when moving downwards
+                rb.gravityScale = 4f; // Increased gravity when moving downwards
             }
         }
-        #endregion
 
-        private void JumpWithVector2()
-        {
-            // TODO
-        }
     }
 }
