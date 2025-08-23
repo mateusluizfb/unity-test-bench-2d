@@ -26,7 +26,7 @@ namespace Jump.Scripts
     {
       contactFilter.SetLayerMask(LayerMask.GetMask("Ground"));
     }
-
+    
     void Update()
     {
       CheckGroundCheckCollision();
@@ -61,9 +61,34 @@ namespace Jump.Scripts
       }
       else
       {
-        jumpVelocity += Physics2D.gravity.y * gravityScale * Time.deltaTime; // v = u + at
-        transform.Translate(Vector3.up * jumpVelocity * Time.deltaTime); // d = u * t
+        // Use the analytical method by default. Switch to Euler for approximation if desired.
+        PerformJumpGravityAnalytical();
+        // PerformJumpGravityEuler(); // Uncomment to use Euler instead
       }
+    }
+
+    // --- Euler Integration (Simple Approximation) ---
+    // This method updates velocity first, then uses it to move the object.
+    // It assumes velocity is constant during the frame, which is only an approximation.
+    // For small Time.deltaTime (high FPS), this is usually good enough.
+    private void PerformJumpGravityEuler()
+    {
+      float acceleration = Physics2D.gravity.y * gravityScale;
+      jumpVelocity += acceleration * Time.deltaTime;
+      float eulerDeltaY = jumpVelocity * Time.deltaTime;
+      transform.Translate(Vector3.up * eulerDeltaY);
+    }
+
+    // --- Analytical (Physics Equation) ---
+    // This method uses the full equation: d = u * t + 0.5 * a * t^2
+    // It accounts for the fact that velocity changes during the frame, so it's more accurate,
+    // especially for large Time.deltaTime (low FPS, lag spikes).
+    private void PerformJumpGravityAnalytical()
+    {
+      float acceleration = Physics2D.gravity.y * gravityScale;
+      float analyticalDeltaY = jumpVelocity * Time.deltaTime + 0.5f * acceleration * Time.deltaTime * Time.deltaTime;
+      transform.Translate(Vector3.up * analyticalDeltaY);
+      jumpVelocity += acceleration * Time.deltaTime;
     }
 
     private void CheckGroundCheckCollision()
