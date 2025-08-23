@@ -6,13 +6,6 @@ using UnityEngine.InputSystem;
 
 // Reference: https://www.youtube.com/watch?v=c9kxUvCKhwQ
 
-/*
-  Questions for later:
-  - Why multiply by Time.deltaTime twice when using PerformJumpGravityScale?
-  - Why does the sqrt formula work for jumpVelocity and it keeps it in a fixed height?
-*/
-
-
 namespace Jump.Scripts
 {
   public class PlayerWithTransform : MonoBehaviour
@@ -25,7 +18,7 @@ namespace Jump.Scripts
 
     public Transform feet;
     public Collider2D feetCollider;
-    public bool isGrounded;
+    public bool isGrounded = true;
     ContactFilter2D contactFilter = new ContactFilter2D();
     Collider2D[] results = new Collider2D[1];
 
@@ -37,8 +30,7 @@ namespace Jump.Scripts
     void Update()
     {
       CheckGroundCheckCollision();
-      PerformJumpGravityScale();
-      // PerformJumpSimpleGravityEffect();
+      PerformJumpGravityEffect();
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -51,6 +43,8 @@ namespace Jump.Scripts
       if (context.performed)
       {
         // jumpVelocity = fixedJumpForce;
+
+        // derivation of: vˆ2 = u^2 + 2*a*s but with v as 0, because we want the height when the final velocity is 0
         jumpVelocity = Mathf.Sqrt(jumpHeight * -2f * (Physics2D.gravity.y * gravityScale));
       }
       else if (context.canceled)
@@ -59,18 +53,7 @@ namespace Jump.Scripts
       }
     }
 
-    private void PerformJumpSimpleGravityEffect()
-    {
-      transform.Translate(Vector3.up * jumpVelocity * Time.deltaTime);
-      jumpVelocity -= 9.81f * Time.deltaTime; // Simple gravity effect
-
-      if (isGrounded)
-      {
-        jumpVelocity = 0; // Reset jump velocity when grounded
-      }
-    }
-
-    private void PerformJumpGravityScale()
+    private void PerformJumpGravityEffect()
     {
       if (isGrounded)
       {
@@ -78,8 +61,8 @@ namespace Jump.Scripts
       }
       else
       {
-        jumpVelocity += Physics2D.gravity.y * gravityScale * Time.deltaTime;
-        transform.Translate(Vector3.up * jumpVelocity * Time.deltaTime);
+        jumpVelocity += Physics2D.gravity.y * gravityScale * Time.deltaTime; // v = u + at
+        transform.Translate(Vector3.up * jumpVelocity * Time.deltaTime); // d = u * t
       }
     }
 
