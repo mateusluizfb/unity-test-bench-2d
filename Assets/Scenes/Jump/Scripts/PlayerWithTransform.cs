@@ -15,12 +15,15 @@ namespace Jump.Scripts
     [SerializeField] private float jumpVelocity = 0f;
     [SerializeField] private float gravityScale = 1f;
     [SerializeField] private float jumpHeight = 2f;
+    [SerializeField] float moveSpeed = 5f;
+
 
     public Transform feet;
     public Collider2D feetCollider;
     public bool isGrounded = true;
     ContactFilter2D contactFilter = new ContactFilter2D();
     Collider2D[] results = new Collider2D[1];
+    private Vector2 playerMoveDirection = Vector2.zero;
 
     void Start()
     {
@@ -29,13 +32,21 @@ namespace Jump.Scripts
     
     void Update()
     {
+      transform.Translate(playerMoveDirection * Time.deltaTime * moveSpeed);
+
       CheckGroundCheckCollision();
       PerformJumpGravityEffect();
     }
 
     public void Move(InputAction.CallbackContext context)
     {
-      Debug.Log($"OnMove: {context.ReadValue<Vector2>()}");
+      Vector2 moveVector = context.ReadValue<Vector2>();
+      
+      if (moveVector.y != 0) return;
+
+      playerMoveDirection = moveVector;
+
+      Debug.Log($"OnMove: {moveVector}");
     }
 
     public void Jump(InputAction.CallbackContext context)
